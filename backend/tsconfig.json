@@ -12,7 +12,7 @@
     "sourceMap": true,
     "outDir": "./dist",
 
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
       "@prisma/__generated__": ["prisma/__generated__"],
@@ -23,5 +23,7 @@
     "skipLibCheck": true,
 
     "esModuleInterop": true,
+
+    "types": ["node", "express", "express-session"]
   }
 }

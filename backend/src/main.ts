@@ -6,9 +6,13 @@ import { ValidationPipe } from '@nestjs/common';
 import { ms } from './libs/common/utils/ms.util';
 import { parseBoolean } from './libs/common/utils/parse-bool.util';
 
-import session from 'express-session';
+import * as sessionImport from 'express-session';
+const session =
+  (sessionImport as any).default ?? sessionImport;
+
+import RedisStore  from 'connect-redis';
 import Redis from 'ioredis';
-import RedisStoreWrapper from 'connect-redis';
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,10 +24,7 @@ async function bootstrap() {
     port: config.getOrThrow<number>('REDIS_PORT')
   })
 
-  // There are some problems with importing, so everything is imported and you have to extract it yourself (I'm too lazy to fix it right now)
-  const ActualRedisStore = (RedisStoreWrapper as any).RedisStore || RedisStoreWrapper;
-
-  const redisStore = new ActualRedisStore({
+  const redisStore = new RedisStore({
     client: redisClient,
     prefix: config.getOrThrow<string>('SESSION_FOLDER')
   })
