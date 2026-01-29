@@ -39,6 +39,7 @@ export class UserService {
         method: AuthMethod,
         isVerified: boolean
     ) {
+        console.log('DATA', email, password, displayName, picture, method, isVerified)
         const user = await this.prismaService.user.create({
             data: {
                 email,
