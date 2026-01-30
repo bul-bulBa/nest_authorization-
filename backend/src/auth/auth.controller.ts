@@ -7,13 +7,15 @@ import { Recaptcha } from '@nestlab/google-recaptcha';
 import { AuthProviderGuard } from './guards/provider.guard';
 import { ConfigService } from '@nestjs/config';
 import { ProviderService } from './provider/provider.service';
+import { MailService } from '@/libs/mail/mail.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
-    private readonly providerService: ProviderService
+    private readonly providerService: ProviderService,
+    private readonly mailService: MailService
   ) { }
 
   @Recaptcha()
@@ -69,5 +71,10 @@ export class AuthController {
     @Res({ passthrough: true}) res: Response
   ) {
     return this.authService.logout(req, res)
+  }
+
+  @Get('test/:email')
+  async testMailer(@Param('email') email: string) {
+    return this.mailService.sendTestEmail(email)
   }
 }

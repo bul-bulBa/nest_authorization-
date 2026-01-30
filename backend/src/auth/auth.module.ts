@@ -7,11 +7,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { getRecaptchaConfig } from '@/config/recaptcha.config';
 import { ProviderModule } from './provider/provider.module';
 import { getProvidersConfig } from '@/config/providers.config';
+import { MailModule } from '@/libs/mail/mail.module';
 
 @Module({
   imports: [
     ProviderModule.registerAsync({
-      imports: [ConfigModule],
+      imports: [
+        ConfigModule,
+        MailModule
+      ],
       useFactory: getProvidersConfig,
       inject: [ConfigService]
     }), 
