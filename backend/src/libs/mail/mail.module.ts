@@ -21,6 +21,6 @@ import { Resend } from 'resend'
     },
     MailService
   ],
-  exports: [MailService]
+  exports: [MailService, 'RESEND_CLIENT']
 })
 export class MailModule {}

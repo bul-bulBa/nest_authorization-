@@ -72,9 +72,4 @@ export class AuthController {
   ) {
     return this.authService.logout(req, res)
   }
-
-  @Get('test/:email')
-  async testMailer(@Param('email') email: string) {
-    return this.mailService.sendTestEmail(email)
-  }
 }

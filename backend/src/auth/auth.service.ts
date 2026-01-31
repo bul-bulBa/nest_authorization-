@@ -9,6 +9,7 @@ import bcrypt from 'bcrypt'
 import { ConfigService } from '@nestjs/config';
 import { ProviderService } from './provider/provider.service';
 import { PrismaService } from '@/prisma/prisma.service';
+import { EmailConfirmationService } from './email-confirmation/email-confirmation.service';
 
 @Injectable()
 export class AuthService {
@@ -16,7 +17,8 @@ export class AuthService {
         private readonly userService: UserService,
         private readonly config: ConfigService,
         private readonly providerService: ProviderService,
-        private readonly prismaService: PrismaService
+        private readonly prismaService: PrismaService,
+        private readonly emailConfirmationService: EmailConfirmationService
     ) { }
 
     async register(req: Request, dto: RegisterDto) {
@@ -34,7 +36,11 @@ export class AuthService {
             false
         )
 
-        return this.saveSession(req, newUser)
+        await this.emailConfirmationService.sendVerificationToken(newUser)
+
+        return {
+            message: `You successfully authorized, please confirm your email. Message was sent to your email address`
+        }
     }
 
     async login(req: Request, dto: LoginDto) {
@@ -47,6 +53,11 @@ export class AuthService {
         console.log(isValidPass, user.password, dto.password)
         if (!isValidPass)
             throw new UnauthorizedException('Incorrect password, please try again, or reset password')
+
+        if(!user.isVerified) {
+            await this.emailConfirmationService.sendVerificationToken(user)
+            throw new UnauthorizedException( `Your email don't verified. Please check your email and confirm address`)
+        }
 
         return this.saveSession(req, user)
     }
