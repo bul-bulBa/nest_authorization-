@@ -2,6 +2,7 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { AuthMethod } from 'prisma/generated/enums';
 import  bcrypt  from 'bcrypt'
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -39,7 +40,6 @@ export class UserService {
         method: AuthMethod,
         isVerified: boolean
     ) {
-        console.log('DATA', email, password, displayName, picture, method, isVerified)
         const user = await this.prismaService.user.create({
             data: {
                 email,
@@ -55,5 +55,23 @@ export class UserService {
         })
 
         return user
+    }
+
+    async update(userId: string, dto: UpdateUserDto) {
+        const user = await this.findById(userId)
+
+        const updatedUser = await this.prismaService.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                email: dto.email,
+                displayName: dto.name,
+                isTwoFactorEnabled: dto.isTwoFactorEnabled
+            }
+
+        })
+        
+        return updatedUser
     }
 }

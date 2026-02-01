@@ -10,6 +10,8 @@ import { ConfigService } from '@nestjs/config';
 import { ProviderService } from './provider/provider.service';
 import { PrismaService } from '@/prisma/prisma.service';
 import { EmailConfirmationService } from './email-confirmation/email-confirmation.service';
+import { TwoFactorAuthModule } from './two-factor-auth/two-factor-auth.module';
+import { TwoFactorAuthService } from './two-factor-auth/two-factor-auth.service';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +20,8 @@ export class AuthService {
         private readonly config: ConfigService,
         private readonly providerService: ProviderService,
         private readonly prismaService: PrismaService,
-        private readonly emailConfirmationService: EmailConfirmationService
+        private readonly emailConfirmationService: EmailConfirmationService,
+        private readonly twoFactorAuthService: TwoFactorAuthService
     ) { }
 
     async register(req: Request, dto: RegisterDto) {
@@ -36,7 +39,7 @@ export class AuthService {
             false
         )
 
-        await this.emailConfirmationService.sendVerificationToken(newUser)
+        await this.emailConfirmationService.sendVerificationToken(newUser.email)
 
         return {
             message: `You successfully authorized, please confirm your email. Message was sent to your email address`
@@ -50,13 +53,29 @@ export class AuthService {
             throw new NotFoundException('User not found, please check entered data')
 
         const isValidPass = await bcrypt.compare(dto.password, user.password)
-        console.log(isValidPass, user.password, dto.password)
+
         if (!isValidPass)
             throw new UnauthorizedException('Incorrect password, please try again, or reset password')
 
         if(!user.isVerified) {
-            await this.emailConfirmationService.sendVerificationToken(user)
+            await this.emailConfirmationService.sendVerificationToken(user.email)
             throw new UnauthorizedException( `Your email don't verified. Please check your email and confirm address`)
+        }
+
+        if(user.isTwoFactorEnabled) {
+            if(!dto.code) {
+                await this.twoFactorAuthService.sendTwoFactorToken(user.email)
+
+                return {
+                    message: 
+                    `Check your mail box. Needed two factor authentification code`
+                }
+            }
+
+            await this.twoFactorAuthService.validateTwoFactorToken(
+                user.email,
+                dto.code
+            )
         }
 
         return this.saveSession(req, user)

@@ -11,6 +11,8 @@ import { MailModule } from '@/libs/mail/mail.module';
 import { EmailConfirmationModule } from './email-confirmation/email-confirmation.module';
 import { MailService } from '@/libs/mail/mail.service';
 import { EmailConfirmationService } from './email-confirmation/email-confirmation.service';
+import { TwoFactorAuthModule } from './two-factor-auth/two-factor-auth.module';
+import { TwoFactorAuthService } from './two-factor-auth/two-factor-auth.service';
 
 @Module({
   imports: [
@@ -31,7 +33,7 @@ import { EmailConfirmationService } from './email-confirmation/email-confirmatio
     forwardRef(() => EmailConfirmationModule)
   ],
   controllers: [AuthController],
-  providers: [AuthService, UserService, MailService],
+  providers: [AuthService, UserService, MailService, TwoFactorAuthService],
   exports: [AuthService]
 })
 export class AuthModule {}

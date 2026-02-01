@@ -16,3 +16,4 @@ export class EmailConfirmationController {
     return this.emailConfirmationService.newVerification(req, dto)
   }
 }
+ 

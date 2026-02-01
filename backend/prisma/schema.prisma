@@ -83,6 +83,6 @@ enum AuthMethod {
 
 enum TokenType {
   VERIFICATION
-  TWO_FACTION
+  TWO_FACTOR
   PASSWORD_RESET
 }
